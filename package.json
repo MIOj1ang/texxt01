@@ -4,9 +4,12 @@
   "description": "GitHub Actions来设置一个基本的CI/CD（持续集成/持续部署）管道。以一个基于Node.js的应用程序为例，展示如何在每次推送代码时自动运行测试，并在特定条件下自动部署应用程序。",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
 }
