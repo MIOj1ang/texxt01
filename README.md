@@ -60,7 +60,7 @@ jobs:
 #作用：定义工作流中的各个作业（job）。
 #解释：在这个工作流中，有两个作业：build-and-test 和 deploy。
 
-  deploy:
+ deploy:
     needs: build-and-test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -109,7 +109,22 @@ jobs:
         SERVER_USER: ${{ secrets.SERVER_USER }}
         SERVER_HOST: ${{ secrets.SERVER_HOST }}
         SERVER_PATH: ${{ secrets.SERVER_PATH }}
+        DEPLOY_KEY: ${{ secrets.DEPLOY_KEY }}
       run: |
         echo "Deploying to server..."
-        # 在这里添加你的部署命令，例如使用 scp、ssh 等
+
+        # 设置 SSH 密钥
+        mkdir -p ~/.ssh
+        echo "$DEPLOY_KEY" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -t rsa $SERVER_HOST >> ~/.ssh/known_hosts
+
+        # 使用 SCP 部署代码
         scp -r . ${SERVER_USER}@${SERVER_HOST}:${SERVER_PATH}
+
+        # 可选：运行远程命令（例如重启服务）
+        ssh ${SERVER_USER}@${SERVER_HOST} << 'EOF'
+          cd ${SERVER_PATH}
+          npm install --production
+          pm2 restart all
+        EOF
